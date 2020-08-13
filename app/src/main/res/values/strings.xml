@@ -20,4 +20,6 @@
     <string name="comentario">Comentario</string>
     <string name="splash_license">\@designer_krish</string>
     <string name="error_get_data">Error al obtener información.</string>
+    <string name="error_login">Error al iniciar sesión.</string>
+    <string name="logout">Cerrar sesión</string>
 </resources>
