@@ -16,4 +16,8 @@
     <string name="persona_quien_realizo_compra_required">Persona quien realizó la compra *</string>
     <string name="hint_value">10.000</string>
     <string name="valor_total_compra_realizada_required">Valor total de la compra *</string>
+    <string name="add">Agregar</string>
+    <string name="comentario">Comentario</string>
+    <string name="splash_license">\@designer_krish</string>
+    <string name="error_get_data">Error al obtener información.</string>
 </resources>

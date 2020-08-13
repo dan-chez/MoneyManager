@@ -12,13 +12,13 @@ public class Util {
     /**
      * This method change button state
      */
-    public static void cambiarEstadoButton(Context ctx, Button btView, Boolean activo) {
+    public static void changeButtonState(Context ctx, Button btView, Boolean activo) {
         if (activo) {
-            btView.setBackgroundColor(ctx.getResources().getColor(R.color.colorPrimary));
+            btView.setBackground(ctx.getResources().getDrawable(R.drawable.button_bg_disabled));
             btView.setTextColor(ctx.getResources().getColor(R.color.white));
             btView.setActivated(true);
         } else {
-            btView.setBackground(ctx.getResources().getDrawable(R.drawable.button_bg_primarycolor_borders));
+            btView.setBackground(ctx.getResources().getDrawable(R.drawable.button_bg_enabled));
             btView.setTextColor(ctx.getResources().getColor(R.color.colorPrimary));
             btView.setActivated(false);
         }

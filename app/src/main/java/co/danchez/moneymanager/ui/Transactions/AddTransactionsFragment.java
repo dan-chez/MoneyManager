@@ -2,33 +2,56 @@ package co.danchez.moneymanager.ui.Transactions;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
+import co.danchez.moneymanager.Activities.MainActivity;
+import co.danchez.moneymanager.Connectivity.FirebaseManager;
+import co.danchez.moneymanager.Connectivity.Models.Users;
 import co.danchez.moneymanager.R;
+import co.danchez.moneymanager.Utilidades.ConstantList;
 import co.danchez.moneymanager.Utilidades.Intefaces.TextWatcherInterface;
 import co.danchez.moneymanager.Utilidades.OwnTextWatcher;
 import co.danchez.moneymanager.Utilidades.SpinnerAdapter;
 import co.danchez.moneymanager.Utilidades.Util;
 
-public class AddTransactionsFragment extends Fragment implements TextWatcherInterface {
+public class AddTransactionsFragment extends Fragment implements TextWatcherInterface, View.OnClickListener {
 
     private SpinnerAdapter tipdocAdapter;
     private AppCompatSpinner sp_persons;
-    private boolean primeraCarga;
-    private TextInputEditText et_value;
+    private boolean firstLoad = true;
+    private TextInputEditText et_value, et_comment;
     private OwnTextWatcher twValue;
+    private Button btn_add_transaction;
+    private FirebaseManager firebaseManager;
+    private List<Users> usersList;
+    private ArrayList<String> namesList;
 
     public AddTransactionsFragment() {
         // Required empty public constructor
@@ -61,45 +84,63 @@ public class AddTransactionsFragment extends Fragment implements TextWatcherInte
         return view;
     }
 
+    private void loadSpinners() {
+        ArrayList<String> namesList = new ArrayList<>();
+        namesList.add("Selecciona");
+        for (int i = 0; i < usersList.size(); i++) namesList.add(usersList.get(i).getNameUser());
+        tipdocAdapter.setItemList(namesList);
+        sp_persons.setAdapter(tipdocAdapter);
+        ((MainActivity) getActivity()).hideProgress();
+    }
+
     private void loadObjects(View view) {
         sp_persons = view.findViewById(R.id.sp_persons);
         et_value = view.findViewById(R.id.et_value);
+        et_comment = view.findViewById(R.id.et_comment);
+        btn_add_transaction = view.findViewById(R.id.btn_add_transaction);
+        btn_add_transaction.setOnClickListener(this);
         TextView tv_error_sp_persons = view.findViewById(R.id.tv_error_sp_persons);
         TextView tv_error_et_value = view.findViewById(R.id.tv_error_et_value);
+
+        firebaseManager = new FirebaseManager();
+        ((MainActivity) getActivity()).showProgress();
+        firebaseManager.readData(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    usersList = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                        Users user = document.toObject(Users.class);
+                        user.setIdUser(document.getId());
+                        usersList.add(user);
+                    }
+                    loadSpinners();
+                } else {
+                    Toast.makeText(getActivity(), getString(R.string.error_get_data), Toast.LENGTH_SHORT).show();
+                    Log.w("TAG", "Error getting users.", task.getException());
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        }, ConstantList.USERS_COLLECTION);
 
         twValue = new OwnTextWatcher(getContext(), et_value, this, tv_error_et_value);
         twValue.setValidaObligatorio(true, getResources().getString(R.string.error_edittext_requiered));
         et_value.addTextChangedListener(twValue);
         tipdocAdapter = new SpinnerAdapter(getContext(), R.layout.layout_spinner, new ArrayList<String>(), tv_error_sp_persons, getResources().getString(R.string.error_spinner_requiered));
-        ArrayList<String> listaString = new ArrayList<>();
-        listaString.add("Selecciona");
-        listaString.add("Selecciona 1");
-        listaString.add("Selecciona 2");
-        listaString.add("Selecciona 3");
-        /*for (int cTD = 0; cTD < typesDocuments.size(); cTD++)
-            listaString.add(typesDocuments.get(cTD).name);*/
-        tipdocAdapter.setItemList(listaString);
-        sp_persons.setAdapter(tipdocAdapter);
         sp_persons.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Util.hideSoftKeyboard(getActivity());
-                if (!primeraCarga) {
+                if (!firstLoad) {
                     tipdocAdapter.setSelectedItem(i);
                     tipdocAdapter.validar(true);
-                    validarEstadoCampos();
-                    /*userEditText.requestFocus();
-                    GeneralCore.showSoftKeyboard(getActivity());*/
-                } else {
-                    primeraCarga = false;
-                }
-                /*if (typesDocuments.get(type_document_spinner.getSelectedItemPosition()).param.equals("Pasaporte")) {
-                    userEditText.setInputType(InputType.TYPE_CLASS_TEXT);
-                    userEditText.setKeyListener(DigitsKeyListener.getInstance(getResources().getString(R.string.edittext_digits_placa)));
-                } else {
-                    userEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    userEditText.setKeyListener(DigitsKeyListener.getInstance(getResources().getString(R.string.edittext_digits_telefono)));
-                }*/
+                    validateFields();
+                    et_value.requestFocus();
+                } else firstLoad = false;
             }
 
             @Override
@@ -108,21 +149,43 @@ public class AddTransactionsFragment extends Fragment implements TextWatcherInte
         });
     }
 
-    private boolean validarEstadoCampos() {
+    private boolean validateFields() {
         twValue.validar(true);
         tipdocAdapter.validar(true);
-        /*if (!twValue.getConError() && !twPassword.getConError() && !tipdocAdapter.isConError() && !userEditText.getText().toString().equals("") && !passwordEditText.getText().toString().equals("")) {
-            Util.cambiarEstadoButton(getContext(), loginBtn, true);
+        if (!twValue.getConError() && !tipdocAdapter.isConError()) {
+            Util.changeButtonState(getContext(), btn_add_transaction, true);
             return true;
         } else {
-            GeneralCore.cambiarEstadoButton(getContext(), loginBtn, false);
+            Util.changeButtonState(getContext(), btn_add_transaction, false);
             return false;
-        }*/
-        return true;
+        }
     }
 
     @Override
     public void onTextChange(EditText view) {
-
+        validateFields();
     }
+
+    @Override
+    public void onClick(View v) {
+        if (validateFields()) {
+            Util.hideSoftKeyboard(Objects.requireNonNull(getActivity()));
+            Map<String, Object> newObject = new HashMap<>();
+            newObject.put(ConstantList.ID_USER_TRANSACTION, usersList.get(sp_persons.getSelectedItemPosition() - 1).getIdUser());
+            newObject.put(ConstantList.VALUE_TRANSACTION, Objects.requireNonNull(et_value.getText()).toString());
+            newObject.put(ConstantList.COMMENT_TRANSACTION, Objects.requireNonNull(et_comment.getText()).toString());
+            firebaseManager.addElement(newObject, new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    Toast.makeText(getActivity(), documentReference.getId(), Toast.LENGTH_SHORT).show();
+                }
+            }, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
+                }
+            }, ConstantList.TRANSACTION_COLLECTION);
+        }
+    }
+
 }

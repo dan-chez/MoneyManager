@@ -1,12 +1,12 @@
-package co.danchez.moneymanager;
+package co.danchez.moneymanager.Activities;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
+import android.widget.RelativeLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.fragment.app.Fragment;
@@ -19,9 +19,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import java.util.List;
 import java.util.Objects;
 
+import co.danchez.moneymanager.R;
 import co.danchez.moneymanager.Utilidades.Intefaces.OnPushingNewFragmentListener;
 import co.danchez.moneymanager.ui.Transactions.AddTransactionsFragment;
 
@@ -31,12 +31,14 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
 
     private static final String LOG_TAG = "MainActivity";
     private AppBarConfiguration mAppBarConfiguration;
+    private RelativeLayout rl_loading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        rl_loading = findViewById(R.id.rl_loading);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -88,6 +90,14 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
                     .replace(R.id.nav_host_fragment, fragment, tag)
                     .commit();
         }
+    }
+
+    public void showProgress() {
+        rl_loading.setVisibility(View.VISIBLE);
+    }
+
+    public void hideProgress() {
+        rl_loading.setVisibility(View.GONE);
     }
 
 }

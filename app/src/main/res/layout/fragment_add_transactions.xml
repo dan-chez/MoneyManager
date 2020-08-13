@@ -51,13 +51,13 @@
                 android:textColor="@color/errorDark"
                 android:textSize="@dimen/small_size"
                 android:textStyle="bold"
-                android:visibility="gone" />
+                android:visibility="invisible" />
 
             <TextView
                 android:id="@+id/tv_content_et_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/valor_total_compra_realizada_required"
                 android:textColor="@color/grisPolvo"
                 android:textSize="@dimen/small_size"
@@ -75,11 +75,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:background="@drawable/background_border_gray_fill_empty_rounded"
+                    android:drawableStart="@drawable/ic_money"
+                    android:drawablePadding="5dp"
                     android:hint="@string/hint_value"
                     android:inputType="number"
                     android:padding="8dp"
-                    android:drawableStart="@drawable/ic_money"
-                    android:drawablePadding="5dp"
                     android:singleLine="true"
                     android:textSize="@dimen/normal_size"
                     app:hintAnimationEnabled="false"
@@ -97,7 +97,54 @@
                 android:textColor="@color/errorDark"
                 android:textSize="@dimen/small_size"
                 android:textStyle="bold"
-                android:visibility="gone" />
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/tv_content_et_comment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/comentario"
+                android:textColor="@color/grisPolvo"
+                android:textSize="@dimen/small_size"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                app:hintAnimationEnabled="false"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_comment"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:background="@drawable/background_border_gray_fill_empty_rounded"
+                    android:inputType="text"
+                    android:padding="8dp"
+                    android:singleLine="true"
+                    android:textSize="@dimen/normal_size"
+                    app:hintAnimationEnabled="false"
+                    app:hintEnabled="false">
+
+                    <requestFocus />
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/btn_add_transaction"
+                android:layout_width="@dimen/button_width"
+                android:layout_height="@dimen/button_height"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/blue_border_button"
+                android:text="@string/add"
+                android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/normal_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_forgot_password" />
 
         </LinearLayout>
 

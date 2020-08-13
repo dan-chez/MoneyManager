@@ -70,7 +70,7 @@ public class SpinnerAdapter extends ArrayAdapter {
             if (parent != null)
                 parent.setBackground(context.getResources().getDrawable(R.drawable.spinner_bg));
             if (tvError != null) {
-                tvError.setVisibility(View.GONE);
+                tvError.setVisibility(View.INVISIBLE);
             }
         }
     }

@@ -179,7 +179,7 @@ public class OwnTextWatcher implements android.text.TextWatcher {
         }else{
             view.setBackground(ctx.getResources().getDrawable(R.drawable.background_border_gray_fill_empty_rounded));
             if(tvError != null){
-                tvError.setVisibility(View.GONE);
+                tvError.setVisibility(View.INVISIBLE);
             }
         }
     }
