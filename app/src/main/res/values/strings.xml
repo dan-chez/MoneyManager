@@ -11,15 +11,36 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="add_transaction_title">Añadir compra</string>
+
+
     <string name="error_spinner_requiered">Debe seleccionar una opción</string>
     <string name="error_edittext_requiered">Este campo es obligatorio</string>
+
+
     <string name="persona_quien_realizo_compra_required">Persona quien realizó la compra *</string>
     <string name="hint_value">10.000</string>
     <string name="valor_total_compra_realizada_required">Valor total de la compra *</string>
     <string name="add">Agregar</string>
     <string name="comentario">Comentario</string>
     <string name="splash_license">\@designer_krish</string>
+
+
     <string name="error_get_data">Error al obtener información.</string>
+    <string name="error_set_data">Error al realizar operación.</string>
     <string name="error_login">Error al iniciar sesión.</string>
+    <string name="error_team_doesnt_found">El grupo financiero no se pudo encontrar.</string>
+
+
     <string name="logout">Cerrar sesión</string>
+    <string name="add_team_title">Unirse a grupo financiero</string>
+    <string name="join">Unirse</string>
+    <string name="id_team_required">ID grupo financiero *</string>
+    <string name="create_team_title">Crear grupo financiero</string>
+    <string name="id_name_team_required">Nombre grupo financiero *</string>
+    <string name="create">Crear</string>
+    <string name="accept">Aceptar</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="logut_confirm">¿Desea cerrar sesión?</string>
+    <string name="cancel">Cancelar</string>
 </resources>

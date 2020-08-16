@@ -2,8 +2,11 @@ package co.danchez.moneymanager.Utilidades;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+
+import androidx.appcompat.app.AlertDialog;
 
 import co.danchez.moneymanager.R;
 
@@ -33,6 +36,21 @@ public class Util {
             assert inputMethodManager != null;
             inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
         }
+    }
+
+    /***
+     * Crea alertDialog con un mensaje informativo simple
+     * ***/
+    public static void alertDialogSimple(Context context, String texto) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        builder.setMessage(texto);
+        builder.setPositiveButton(context.getString(R.string.accept), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.show();
     }
 
 }

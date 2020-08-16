@@ -1,16 +1,49 @@
 package co.danchez.moneymanager.Connectivity.Models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Users {
 
-    private String nameUser;
+    @SerializedName("EMAIL_USER")
+    private String email;
+    @SerializedName("NAME_USER")
+    private String name;
+    @SerializedName("PHOTO_USER")
+    private String photo;
+    @SerializedName("UID_USER")
+    private String uid;
     private String idUser;
 
-    public String getNameUser() {
-        return nameUser;
+    public String getEmail() {
+        return email;
     }
 
-    public void setNameUser(String nameUser) {
-        this.nameUser = nameUser;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getIdUser() {

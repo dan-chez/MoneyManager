@@ -34,8 +34,17 @@ public class FirebaseManager {
         db.setFirestoreSettings(settings);
     }
 
-    public void readData(OnCompleteListener<QuerySnapshot> onCompleteListener, OnFailureListener onFailureListener, String collectionName) {
-        db.collection("users")
+    public void readAllDataFromCollection(OnCompleteListener<QuerySnapshot> onCompleteListener, OnFailureListener onFailureListener, String collectionName, String fieldName, String fieldValue) {
+        db.collection(collectionName)
+                .whereEqualTo(fieldName, fieldValue)
+                .get()
+                .addOnCompleteListener(onCompleteListener)
+                .addOnFailureListener(onFailureListener);
+    }
+
+    public void readDataFromCollection(OnCompleteListener<QuerySnapshot> onCompleteListener, OnFailureListener onFailureListener, String collectionName, String fieldName, String valueField) {
+        db.collection(collectionName)
+                .whereEqualTo(fieldName, valueField)
                 .get()
                 .addOnCompleteListener(onCompleteListener)
                 .addOnFailureListener(onFailureListener);

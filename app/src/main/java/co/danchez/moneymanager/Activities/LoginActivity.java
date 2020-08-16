@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +18,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
@@ -24,10 +27,24 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
+import co.danchez.moneymanager.Connectivity.FirebaseManager;
 import co.danchez.moneymanager.R;
+import co.danchez.moneymanager.Utilidades.ConstantList;
+import co.danchez.moneymanager.Utilidades.Util;
+
+import static co.danchez.moneymanager.Utilidades.ConstantList.EMAIL_USER;
+import static co.danchez.moneymanager.Utilidades.ConstantList.ID_TEAM_PREFERENCES;
+import static co.danchez.moneymanager.Utilidades.ConstantList.ID_USER;
+import static co.danchez.moneymanager.Utilidades.ConstantList.TEAMS_COLLECTION;
+import static co.danchez.moneymanager.Utilidades.ConstantList.USERS_COLLECTION;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -36,6 +53,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private static final int RC_SIGN_IN = 9001;
     private FirebaseAuth mAuth;
     private RelativeLayout rl_loading;
+    private FirebaseManager firebaseManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +64,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         SignInButton signInButton = findViewById(R.id.signInButton);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         signInButton.setOnClickListener(this);
+
+        firebaseManager = new FirebaseManager();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -71,16 +91,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                            checkIfUserExist(Objects.requireNonNull(user));
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(LoginActivity.this, getString(R.string.error_login), Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
-                        // [START_EXCLUDE]
-                        hideProgress();
-                        // [END_EXCLUDE]
                     }
                 });
     }
@@ -132,6 +149,52 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (i == R.id.signInButton) {
             signIn();
         }
+    }
+
+    private void checkIfUserExist(final FirebaseUser user) {
+        firebaseManager.readDataFromCollection(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                hideProgress();
+                if (task.isSuccessful()) {
+                    if (Objects.requireNonNull(task.getResult()).size() == 0) {
+                        addUser(Objects.requireNonNull(user));
+                    } else {
+                        updateUI(user);
+                    }
+                } else {
+                    hideProgress();
+                    Util.alertDialogSimple(LoginActivity.this, getString(R.string.error_get_data));
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                hideProgress();
+                Util.alertDialogSimple(LoginActivity.this, getString(R.string.error_get_data));
+            }
+        }, USERS_COLLECTION, EMAIL_USER, user.getEmail());
+    }
+
+    private void addUser(final FirebaseUser user) {
+        showProgress();
+        Map<String, Object> newObject = new HashMap<>();
+        newObject.put(ConstantList.NAME_USER, user.getDisplayName());
+        newObject.put(ConstantList.EMAIL_USER, user.getEmail());
+        newObject.put(ConstantList.UID_USER, user.getUid());
+        Uri uriFoto = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl();
+        newObject.put(ConstantList.PHOTO_USER, Objects.requireNonNull(uriFoto).toString());
+        firebaseManager.addElement(newObject, new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                updateUI(user);
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                updateUI(null);
+            }
+        }, USERS_COLLECTION);
     }
 
     public void showProgress() {

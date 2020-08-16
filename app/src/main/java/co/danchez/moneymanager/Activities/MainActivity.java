@@ -28,16 +28,25 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Objects;
 
+import co.danchez.moneymanager.Fragments.Transactions.AddJoinTeamFragment;
+import co.danchez.moneymanager.Fragments.Transactions.TransactionsFragment;
 import co.danchez.moneymanager.R;
+import co.danchez.moneymanager.Utilidades.DialogGeneral;
 import co.danchez.moneymanager.Utilidades.Intefaces.OnPushingNewFragmentListener;
-import co.danchez.moneymanager.ui.Transactions.AddTransactionsFragment;
+import co.danchez.moneymanager.Fragments.Transactions.AddTransactionsFragment;
+import co.danchez.moneymanager.Utilidades.SharedPreferencesUtil;
 
+import static co.danchez.moneymanager.Utilidades.ConstantList.FRAGMENT_ADD_TEAM;
 import static co.danchez.moneymanager.Utilidades.ConstantList.FRAGMENT_ADD_TRANSACTIONS;
+import static co.danchez.moneymanager.Utilidades.ConstantList.FRAGMENT_TRANSACTIONS;
+import static co.danchez.moneymanager.Utilidades.ConstantList.ID_TEAM_PREFERENCES;
+import static co.danchez.moneymanager.Utilidades.ConstantList.ID_USER_PREFERENCES;
 
 public class MainActivity extends AppCompatActivity implements OnPushingNewFragmentListener, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String LOG_TAG = "MainActivity";
     private RelativeLayout rl_loading;
+    private SharedPreferencesUtil sharedPreferencesUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +68,14 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
 
+        sharedPreferencesUtil = new SharedPreferencesUtil(this);
+
+        if (sharedPreferencesUtil.readStringPreference(ID_TEAM_PREFERENCES) != null && !sharedPreferencesUtil.readStringPreference(ID_TEAM_PREFERENCES).isEmpty()) {
+            loadTransactionsFragment();
+        } else {
+            loadAddJoinFragment();
+        }
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
@@ -71,7 +88,13 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
         int id = item.getItemId();
 
         if (id == R.id.nav_logout) {
-            signOut();
+            DialogGeneral
+                    .newInstance()
+                    .setIcon(R.drawable.ic_menu_logout)
+                    .setTitle(getString(R.string.logout))
+                    .setSubtitle(getString(R.string.logut_confirm))
+                    .isConfirm(v -> signOut())
+                    .show(getSupportFragmentManager(), "");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -91,7 +114,10 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
         Log.d(LOG_TAG, Objects.requireNonNull(fragment.getClass().getCanonicalName()));
         FragmentManager fm = getSupportFragmentManager();
         Fragment currentFragment = fm.findFragmentById(R.id.nav_host_fragment);
-        if (!tag.equals(currentFragment.getTag())) {
+        if (tag.equals(FRAGMENT_TRANSACTIONS)) {
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
+        if (!tag.equals(Objects.requireNonNull(currentFragment).getTag())) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_left)
@@ -99,6 +125,16 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
                     .replace(R.id.nav_host_fragment, fragment, tag)
                     .commit();
         }
+    }
+
+    public void loadTransactionsFragment() {
+        TransactionsFragment transactionsFragment = TransactionsFragment.newInstance();
+        onPushNewFragment(transactionsFragment, FRAGMENT_TRANSACTIONS);
+    }
+
+    public void loadAddJoinFragment() {
+        AddJoinTeamFragment addTeamFragment = AddJoinTeamFragment.newInstance();
+        onPushNewFragment(addTeamFragment, FRAGMENT_ADD_TEAM);
     }
 
     private void signOut() {
@@ -117,6 +153,9 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
                 new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
+                        SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(MainActivity.this);
+                        sharedPreferencesUtil.removePreference(ID_TEAM_PREFERENCES);
+                        sharedPreferencesUtil.removePreference(ID_USER_PREFERENCES);
                         startActivity(new Intent(MainActivity.this, LoginActivity.class));
                         finish();
                     }
