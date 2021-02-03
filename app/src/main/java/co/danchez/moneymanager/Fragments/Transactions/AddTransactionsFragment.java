@@ -92,7 +92,7 @@ public class AddTransactionsFragment extends Fragment implements TextWatcherInte
         for (int i = 0; i < usersList.size(); i++) namesList.add(usersList.get(i).getName());
         tipdocAdapter.setItemList(namesList);
         sp_persons.setAdapter(tipdocAdapter);
-        ((MainActivity) getActivity()).hideProgress();
+        ((MainActivity) getActivity()).loadingView.showLoading();
     }
 
     private void loadObjects(View view) {
@@ -107,7 +107,7 @@ public class AddTransactionsFragment extends Fragment implements TextWatcherInte
         SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(Objects.requireNonNull(getActivity()));
 
         firebaseManager = new FirebaseManager();
-        ((MainActivity) Objects.requireNonNull(getActivity())).showProgress();
+        ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.showLoading();
         firebaseManager.readAllDataFromCollection(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

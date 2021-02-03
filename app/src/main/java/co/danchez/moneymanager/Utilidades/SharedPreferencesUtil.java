@@ -4,12 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import static co.danchez.moneymanager.Utilidades.ConstantList.ID_TEAM_PREFERENCES;
+import static co.danchez.moneymanager.Utilidades.ConstantList.ID_USER_PREFERENCES;
+import static co.danchez.moneymanager.Utilidades.ConstantList.PREFERENCE;
+
 public class SharedPreferencesUtil {
 
-    private SharedPreferences sharedPreferences;
+    private final SharedPreferences sharedPreferences;
 
     public SharedPreferencesUtil(Activity activity) {
-        sharedPreferences = activity.getPreferences(Context.MODE_PRIVATE);
+        sharedPreferences = activity.getSharedPreferences(PREFERENCE, Context.MODE_PRIVATE);
     }
 
     public void saveStringPreference(String namePreference, String valueStringPreference) {
@@ -48,6 +52,11 @@ public class SharedPreferencesUtil {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(namePreference);
         editor.apply();
+    }
+
+    public void logOut() {
+        removePreference(ID_TEAM_PREFERENCES);
+        removePreference(ID_USER_PREFERENCES);
     }
 
 }

@@ -12,19 +12,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,11 +27,13 @@ import co.danchez.moneymanager.Activities.MainActivity;
 import co.danchez.moneymanager.Connectivity.FirebaseManager;
 import co.danchez.moneymanager.R;
 import co.danchez.moneymanager.Utilidades.ConstantList;
+import co.danchez.moneymanager.Utilidades.DialogGeneral;
 import co.danchez.moneymanager.Utilidades.SharedPreferencesUtil;
 import co.danchez.moneymanager.Utilidades.Util;
 
 import static co.danchez.moneymanager.Utilidades.ConstantList.ID_TEAM_PREFERENCES;
-import static co.danchez.moneymanager.Utilidades.ConstantList.ID_USER;
+import static co.danchez.moneymanager.Utilidades.ConstantList.ID_TEAM_USER;
+import static co.danchez.moneymanager.Utilidades.ConstantList.ID_USER_PREFERENCES;
 import static co.danchez.moneymanager.Utilidades.ConstantList.TEAMS_COLLECTION;
 
 public class AddJoinTeamFragment extends Fragment implements View.OnClickListener {
@@ -47,7 +42,6 @@ public class AddJoinTeamFragment extends Fragment implements View.OnClickListene
     private Button btn_finish, btn_create;
     private FirebaseManager firebaseManager;
     private LinearLayout ll_create_team, ll_join_team;
-    private ViewGroup redLayout;
     private TextView tv_error_et_id_team, tv_error_et_name_team;
     private SharedPreferencesUtil sharedPreferencesUtil;
 
@@ -76,7 +70,6 @@ public class AddJoinTeamFragment extends Fragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add_join_team, container, false);
-        Util.hideSoftKeyboard(Objects.requireNonNull(getActivity()));
         loadObjects(view);
         return view;
     }
@@ -88,7 +81,6 @@ public class AddJoinTeamFragment extends Fragment implements View.OnClickListene
         btn_create = view.findViewById(R.id.btn_create);
         ll_create_team = view.findViewById(R.id.ll_create_team);
         ll_join_team = view.findViewById(R.id.ll_join_team);
-        redLayout = view.findViewById(R.id.redLayout);
         tv_error_et_id_team = view.findViewById(R.id.tv_error_et_id_team);
         tv_error_et_name_team = view.findViewById(R.id.tv_error_et_name_team);
 
@@ -167,77 +159,106 @@ public class AddJoinTeamFragment extends Fragment implements View.OnClickListene
         } else if (id == R.id.btn_finish) {
             if (!Objects.requireNonNull(et_id_team.getText()).toString().isEmpty()) {
                 tv_error_et_id_team.setVisibility(View.INVISIBLE);
-                ((MainActivity) Objects.requireNonNull(getActivity())).showProgress();
-                firebaseManager.readDataFromCollection(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
-                        if (task.isSuccessful()) {
-                            if (Objects.requireNonNull(task.getResult()).size() > 0) {
-                                sharedPreferencesUtil.saveStringPreference(ID_TEAM_PREFERENCES, et_id_team.getText().toString());
-                                updateUserInfo(et_id_team.getText().toString());
-                            } else {
-                                Util.alertDialogSimple(getActivity(), getString(R.string.error_team_doesnt_found));
-                            }
+                ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.showLoading();
+                firebaseManager.readDataFromCollection(task -> {
+                    ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.hideLoading();
+                    if (task.isSuccessful()) {
+                        if (Objects.requireNonNull(task.getResult()).size() > 0) {
+                            sharedPreferencesUtil.saveStringPreference(ID_TEAM_PREFERENCES, et_id_team.getText().toString());
+                            updateUserInfo(et_id_team.getText().toString());
                         } else {
-                            Util.alertDialogSimple(getActivity(), getString(R.string.error_team_doesnt_found));
+                            DialogGeneral
+                                    .newInstance()
+                                    .setIcon(R.drawable.ic_dont_found)
+                                    .setTitle(getString(R.string.error))
+                                    .setSubtitle(getString(R.string.error_team_doesnt_found))
+                                    .isAccept(null)
+                                    .show(Objects.requireNonNull(getFragmentManager()), "");
                         }
+                    } else {
+                        DialogGeneral
+                                .newInstance()
+                                .setIcon(R.drawable.ic_dont_found)
+                                .setTitle(getString(R.string.error))
+                                .setSubtitle(getString(R.string.error_team_doesnt_found))
+                                .isAccept(null)
+                                .show(Objects.requireNonNull(getFragmentManager()), "");
                     }
-                }, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
-                        Util.alertDialogSimple(getActivity(), getString(R.string.error_get_data));
-                    }
-                }, TEAMS_COLLECTION, ID_TEAM_PREFERENCES, et_id_team.getText().toString());
+                }, e -> {
+                    ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.hideLoading();
+                    DialogGeneral
+                            .newInstance()
+                            .setIcon(R.drawable.ic_error)
+                            .setTitle(getString(R.string.error))
+                            .setSubtitle(getString(R.string.error_get_data))
+                            .isAccept(null)
+                            .show(Objects.requireNonNull(getFragmentManager()), "");
+                }, TEAMS_COLLECTION, ID_TEAM_USER, et_id_team.getText().toString());
             } else {
                 tv_error_et_id_team.setVisibility(View.VISIBLE);
             }
         } else if (id == R.id.btn_create) {
             if (!Objects.requireNonNull(et_name_team.getText()).toString().isEmpty()) {
                 tv_error_et_name_team.setVisibility(View.INVISIBLE);
-                ((MainActivity) Objects.requireNonNull(getActivity())).showProgress();
-                FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                FirebaseUser currentUser = mAuth.getCurrentUser();
-                Map<String, Object> newObject = new HashMap<>();
-                newObject.put(ConstantList.NAME_TEAM, et_name_team.getText().toString());
-                newObject.put(ConstantList.CREATOR_NAME_TEAM, Objects.requireNonNull(currentUser).getDisplayName());
-                newObject.put(ConstantList.CREATION_DATE_TEAM, FieldValue.serverTimestamp());
-                firebaseManager.addElement(newObject, new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        sharedPreferencesUtil.saveStringPreference(ID_TEAM_PREFERENCES, documentReference.getId());
-                        updateUserInfo(documentReference.getId());
-                    }
-                }, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
-                        Util.alertDialogSimple(getActivity(), getString(R.string.error_set_data));
-                    }
-                }, ConstantList.TEAMS_COLLECTION);
+                DialogGeneral dialogGeneral = DialogGeneral
+                        .newInstance();
+                dialogGeneral.setIcon(R.drawable.ic_question);
+                dialogGeneral.setTitle(getString(R.string.confirm));
+                dialogGeneral.setSubtitle(getString(R.string.confirm_team_creation).replace("#name", et_name_team.getText().toString()));
+                dialogGeneral.isConfirm(v1 -> {
+                    dialogGeneral.dismiss();
+                    createTeam();
+                });
+                dialogGeneral.show(Objects.requireNonNull(getFragmentManager()), "");
+
             } else {
                 tv_error_et_name_team.setVisibility(View.VISIBLE);
             }
         }
     }
 
+    private void createTeam() {
+        ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.showLoading();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        Map<String, Object> newObject = new HashMap<>();
+        newObject.put(ConstantList.TEAM_NAME, et_name_team.getText().toString());
+        newObject.put(ConstantList.NAME_CREATOR_TEAM, Objects.requireNonNull(currentUser).getDisplayName());
+        newObject.put(ConstantList.UID_CREATOR_TEAM, Objects.requireNonNull(currentUser).getUid());
+        newObject.put(ConstantList.CREATION_DATE_TEAM, FieldValue.serverTimestamp());
+        firebaseManager.addElement(newObject, documentReference -> {
+            sharedPreferencesUtil.saveStringPreference(ID_TEAM_PREFERENCES, documentReference.getId());
+            updateUserInfo(documentReference.getId());
+        }, e -> {
+            ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.hideLoading();
+            DialogGeneral
+                    .newInstance()
+                    .setIcon(R.drawable.ic_error)
+                    .setTitle(getString(R.string.error))
+                    .setSubtitle(getString(R.string.error_set_data))
+                    .isAccept(null)
+                    .show(Objects.requireNonNull(getFragmentManager()), "");
+        }, ConstantList.TEAMS_COLLECTION);
+    }
+
     private void updateUserInfo(String idTeam) {
         Map<String, Object> newObject = new HashMap<>();
         newObject.put(ConstantList.ID_TEAM_USER, idTeam);
-        firebaseManager.updateElement(newObject, new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
-                ((MainActivity) Objects.requireNonNull(getActivity())).loadTransactionsFragment();
-            }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                ((MainActivity) Objects.requireNonNull(getActivity())).hideProgress();
-                Util.alertDialogSimple(getActivity(), getString(R.string.error_set_data));
-            }
-        }, ConstantList.USERS_COLLECTION, ID_USER);
+        String s = sharedPreferencesUtil.readStringPreference(ID_USER_PREFERENCES);
+        firebaseManager.updateElement(newObject, aVoid -> {
+                    ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.hideLoading();
+                    ((MainActivity) Objects.requireNonNull(getActivity())).loadTransactionsFragment();
+                }, e -> {
+                    ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.hideLoading();
+                    DialogGeneral
+                            .newInstance()
+                            .setIcon(R.drawable.ic_error)
+                            .setTitle(getString(R.string.error))
+                            .setSubtitle(getString(R.string.error_set_data))
+                            .isAccept(null)
+                            .show(Objects.requireNonNull(getFragmentManager()), "");
+                }, ConstantList.USERS_COLLECTION
+                , sharedPreferencesUtil.readStringPreference(ID_USER_PREFERENCES));
     }
 
 }

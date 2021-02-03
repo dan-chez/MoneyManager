@@ -25,8 +25,9 @@ public class ConstantList {
     public static final String VALUE_TRANSACTION = "VALUE_TRANSACTION";
     public static final String COMMENT_TRANSACTION = "COMMENT_TRANSACTION";
 
-    public static final String NAME_TEAM = "NAME_TEAM";
-    public static final String CREATOR_NAME_TEAM = "CREATOR_NAME_TEAM";
+    public static final String TEAM_NAME = "TEAM_NAME";
+    public static final String NAME_CREATOR_TEAM = "NAME_CREATOR_TEAM";
+    public static final String UID_CREATOR_TEAM = "UID_CREATOR_TEAM";
     public static final String CREATION_DATE_TEAM = "CREATION_DATE_TEAM";
 
 
@@ -40,6 +41,7 @@ public class ConstantList {
     /**
      * Sharedpreferences name's
      * */
+    public static final String PREFERENCE = "PREFERENCES";
     public static final String ID_TEAM_PREFERENCES = "ID_TEAM_PREFERENCES";
     public static final String ID_USER_PREFERENCES = "ID_USER_PREFERENCES";
 

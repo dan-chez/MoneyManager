@@ -34,6 +34,7 @@ import co.danchez.moneymanager.R;
 import co.danchez.moneymanager.Utilidades.DialogGeneral;
 import co.danchez.moneymanager.Utilidades.Intefaces.OnPushingNewFragmentListener;
 import co.danchez.moneymanager.Fragments.Transactions.AddTransactionsFragment;
+import co.danchez.moneymanager.Utilidades.LoadingView;
 import co.danchez.moneymanager.Utilidades.SharedPreferencesUtil;
 
 import static co.danchez.moneymanager.Utilidades.ConstantList.FRAGMENT_ADD_TEAM;
@@ -45,7 +46,7 @@ import static co.danchez.moneymanager.Utilidades.ConstantList.ID_USER_PREFERENCE
 public class MainActivity extends AppCompatActivity implements OnPushingNewFragmentListener, NavigationView.OnNavigationItemSelectedListener {
 
     private static final String LOG_TAG = "MainActivity";
-    private RelativeLayout rl_loading;
+    public LoadingView loadingView;
     private SharedPreferencesUtil sharedPreferencesUtil;
 
     @Override
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        rl_loading = findViewById(R.id.rl_loading);
+        loadingView = findViewById(R.id.loadingView);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -138,7 +139,6 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
     }
 
     private void signOut() {
-        // Firebase sign out
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.signOut();
 
@@ -147,27 +147,14 @@ public class MainActivity extends AppCompatActivity implements OnPushingNewFragm
                 .requestEmail()
                 .build();
 
-        // Google sign out
         GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mGoogleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(MainActivity.this);
-                        sharedPreferencesUtil.removePreference(ID_TEAM_PREFERENCES);
-                        sharedPreferencesUtil.removePreference(ID_USER_PREFERENCES);
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                        finish();
-                    }
+                task -> {
+                    SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(MainActivity.this);
+                    sharedPreferencesUtil.logOut();
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
                 });
-    }
-
-    public void showProgress() {
-        rl_loading.setVisibility(View.VISIBLE);
-    }
-
-    public void hideProgress() {
-        rl_loading.setVisibility(View.GONE);
     }
 
 }

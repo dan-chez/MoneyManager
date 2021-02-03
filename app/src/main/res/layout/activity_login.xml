@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".Activities.LoginActivity">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/signInButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:text="@string/login"
+        android:textSize="@dimen/big_size" />
+
     <com.google.android.gms.common.SignInButton
         android:id="@+id/signInButton"
         android:layout_width="wrap_content"
@@ -13,25 +22,13 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true" />
 
-    <RelativeLayout
-        android:id="@+id/rl_loading"
+    <co.danchez.moneymanager.Utilidades.LoadingView
+        android:id="@+id/loadingView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/grisPolvoTransparente"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone">
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/la_loading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_centerHorizontal="true"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            app:lottie_rawRes="@raw/loading" />
-
-    </RelativeLayout>
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

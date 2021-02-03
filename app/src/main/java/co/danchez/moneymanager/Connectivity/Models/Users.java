@@ -6,6 +6,8 @@ public class Users {
 
     @SerializedName("EMAIL_USER")
     private String email;
+    @SerializedName("ID_TEAM_USER")
+    private String idTeam;
     @SerializedName("NAME_USER")
     private String name;
     @SerializedName("PHOTO_USER")
@@ -20,6 +22,14 @@ public class Users {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getIdTeam() {
+        return idTeam;
+    }
+
+    public void setIdTeam(String idTeam) {
+        this.idTeam = idTeam;
     }
 
     public String getName() {

@@ -6,7 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,10 +21,8 @@ public class DialogGeneral extends DialogFragment {
 
     private int icon;
     private String title, subtitle;
-    private boolean isConfirm = false;
-    private View.OnClickListener confirmListener, cancelListener;
-    private View view;
-    private Button btn_confirm_true, btn_confirm_false;
+    private boolean isConfirm = false, isAccept = false;
+    private View.OnClickListener confirmListener, cancelListener, acceptListener;
 
     public static DialogGeneral newInstance() {
         return new DialogGeneral();
@@ -54,18 +54,36 @@ public class DialogGeneral extends DialogFragment {
         return this;
     }
 
+    public DialogGeneral isAccept(View.OnClickListener listener) {
+        this.acceptListener = listener;
+        this.isAccept = true;
+        return this;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.dialog_general, container, false);
+        View view = inflater.inflate(R.layout.dialog_general, container, false);
 
         TextView tv_title = view.findViewById(R.id.tv_title);
         TextView tv_subtitle = view.findViewById(R.id.tv_subtitle);
         ImageView iv_icon = view.findViewById(R.id.iv_icon);
-        Button btn_close = view.findViewById(R.id.btn_close);
-        btn_confirm_true = view.findViewById(R.id.btn_confirm_true);
-        btn_confirm_false = view.findViewById(R.id.btn_confirm_false);
+        ImageButton btn_close = view.findViewById(R.id.btn_close);
+        Button btn_confirm_true = view.findViewById(R.id.btn_confirm_true);
+        Button btn_confirm_false = view.findViewById(R.id.btn_confirm_false);
+        Button btn_accept = view.findViewById(R.id.btn_accept);
+        LinearLayout ll_buttons = view.findViewById(R.id.ll_buttons);
+
+        if (isAccept) {
+            btn_accept.setVisibility(View.VISIBLE);
+            ll_buttons.setVisibility(View.GONE);
+            if (acceptListener != null) {
+                btn_accept.setOnClickListener(acceptListener);
+            } else {
+                btn_accept.setOnClickListener(v -> DialogGeneral.this.dismiss());
+            }
+        }
 
         btn_close.setOnClickListener(v -> DialogGeneral.this.dismiss());
 
