@@ -20,6 +20,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.HashMap;
@@ -187,6 +188,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         newObject.put(ConstantList.NAME_USER, user.getDisplayName());
         newObject.put(ConstantList.EMAIL_USER, user.getEmail());
         newObject.put(ConstantList.UID_USER, user.getUid());
+        newObject.put(ConstantList.REGISTER_TIME_USER, FieldValue.serverTimestamp());
         Uri uriFoto = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhotoUrl();
         newObject.put(ConstantList.PHOTO_USER, Objects.requireNonNull(uriFoto).toString());
         firebaseManager.addElement(newObject, documentReference -> {

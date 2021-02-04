@@ -66,6 +66,12 @@ public class AddJoinTeamFragment extends Fragment implements View.OnClickListene
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ((MainActivity) Objects.requireNonNull(getActivity())).showCopyIDTeam();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -219,12 +225,10 @@ public class AddJoinTeamFragment extends Fragment implements View.OnClickListene
 
     private void createTeam() {
         ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.showLoading();
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
         Map<String, Object> newObject = new HashMap<>();
         newObject.put(ConstantList.TEAM_NAME, et_name_team.getText().toString());
-        newObject.put(ConstantList.NAME_CREATOR_TEAM, Objects.requireNonNull(currentUser).getDisplayName());
-        newObject.put(ConstantList.UID_CREATOR_TEAM, Objects.requireNonNull(currentUser).getUid());
+        newObject.put(ConstantList.NAME_CREATOR_TEAM, Objects.requireNonNull(((MainActivity) Objects.requireNonNull(getActivity())).getCurrentUser()).getDisplayName());
+        newObject.put(ConstantList.UID_CREATOR_TEAM, Objects.requireNonNull(((MainActivity) Objects.requireNonNull(getActivity())).getCurrentUser()).getUid());
         newObject.put(ConstantList.CREATION_DATE_TEAM, FieldValue.serverTimestamp());
         firebaseManager.addElement(newObject, documentReference -> {
             sharedPreferencesUtil.saveStringPreference(ID_TEAM_PREFERENCES, documentReference.getId());
@@ -244,7 +248,6 @@ public class AddJoinTeamFragment extends Fragment implements View.OnClickListene
     private void updateUserInfo(String idTeam) {
         Map<String, Object> newObject = new HashMap<>();
         newObject.put(ConstantList.ID_TEAM_USER, idTeam);
-        String s = sharedPreferencesUtil.readStringPreference(ID_USER_PREFERENCES);
         firebaseManager.updateElement(newObject, aVoid -> {
                     ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.hideLoading();
                     ((MainActivity) Objects.requireNonNull(getActivity())).loadTransactionsFragment();

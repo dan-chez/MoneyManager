@@ -28,4 +28,9 @@
         <item name="android:windowExitAnimation">@anim/scale_out</item>
     </style>
 
+    <style name="ContentTextView">
+        <item name="android:textSize">@dimen/normal_size</item>
+        <item name="android:textColor">@color/textContent</item>
+    </style>
+
 </resources>

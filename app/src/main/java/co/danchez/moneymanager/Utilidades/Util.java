@@ -3,10 +3,17 @@ package co.danchez.moneymanager.Utilidades;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import androidx.appcompat.app.AlertDialog;
+
+import com.google.firebase.Timestamp;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import co.danchez.moneymanager.R;
 
@@ -51,6 +58,25 @@ public class Util {
             }
         });
         builder.show();
+    }
+
+    /***
+     * Convierte fecha timestamp en string con el formato que se ingrese
+     * ***/
+    public static String convertTimestampToString(Timestamp timestamp, String format) {
+        if (timestamp != null) {
+            Date date = timestamp.toDate();
+            Locale locale = new Locale("es_ES");
+            SimpleDateFormat dateFormat;
+            if (format != null) {
+                dateFormat = new SimpleDateFormat(format, locale);
+            } else {
+                dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a", locale);
+            }
+            return dateFormat.format(date);
+        } else {
+            return "";
+        }
     }
 
 }

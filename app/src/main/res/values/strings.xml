@@ -18,7 +18,7 @@
 
 
     <string name="persona_quien_realizo_compra_required">Persona quien realizó la compra *</string>
-    <string name="hint_value">10.000</string>
+    <string name="hint_value">10000</string>
     <string name="valor_total_compra_realizada_required">Valor total de la compra *</string>
     <string name="add">Agregar</string>
     <string name="comentario">Comentario</string>
@@ -45,4 +45,10 @@
     <string name="confirm">Confirmar</string>
     <string name="confirm_team_creation">¿Estás seguro de crear un grupo financiero llamado #name?</string>
     <string name="login">Iniciar sesión</string>
+
+    <string name="add_transaction_success">Operación realizada con éxito</string>
+    <string name="no_se_encontraron_registros">No se encontraron registros</string>
+    <string name="copy_team_id">Copiar ID grupo financiero</string>
+    <string name="id_team_copiado">ID del grupo financiero copiado en el portapapeles.</string>
+
 </resources>

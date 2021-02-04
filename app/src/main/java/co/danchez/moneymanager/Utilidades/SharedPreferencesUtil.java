@@ -54,6 +54,14 @@ public class SharedPreferencesUtil {
         editor.apply();
     }
 
+    public String getIdTeamUser() {
+        return sharedPreferences.getString(ID_TEAM_PREFERENCES, null);
+    }
+
+    public String getIdUser() {
+        return sharedPreferences.getString(ID_USER_PREFERENCES, null);
+    }
+
     public void logOut() {
         removePreference(ID_TEAM_PREFERENCES);
         removePreference(ID_USER_PREFERENCES);

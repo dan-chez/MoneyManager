@@ -1,11 +1,6 @@
 package co.danchez.moneymanager.Fragments.Transactions;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatSpinner;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,14 +11,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.fragment.app.Fragment;
+
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +29,7 @@ import co.danchez.moneymanager.Connectivity.FirebaseManager;
 import co.danchez.moneymanager.Connectivity.Models.Users;
 import co.danchez.moneymanager.R;
 import co.danchez.moneymanager.Utilidades.ConstantList;
+import co.danchez.moneymanager.Utilidades.DialogGeneral;
 import co.danchez.moneymanager.Utilidades.Intefaces.TextWatcherInterface;
 import co.danchez.moneymanager.Utilidades.OwnTextWatcher;
 import co.danchez.moneymanager.Utilidades.SharedPreferencesUtil;
@@ -79,7 +73,6 @@ public class AddTransactionsFragment extends Fragment implements TextWatcherInte
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add_transactions, container, false);
         Util.hideSoftKeyboard(Objects.requireNonNull(getActivity()));
         loadObjects(view);
@@ -88,11 +81,10 @@ public class AddTransactionsFragment extends Fragment implements TextWatcherInte
 
     private void loadSpinners() {
         ArrayList<String> namesList = new ArrayList<>();
-        namesList.add("Selecciona");
-        for (int i = 0; i < usersList.size(); i++) namesList.add(usersList.get(i).getName());
+        namesList.add("Seleccionar usuario");
+        for (int i = 0; i < usersList.size(); i++) namesList.add(usersList.get(i).getNAME_USER());
         tipdocAdapter.setItemList(namesList);
         sp_persons.setAdapter(tipdocAdapter);
-        ((MainActivity) getActivity()).loadingView.showLoading();
     }
 
     private void loadObjects(View view) {
@@ -106,35 +98,38 @@ public class AddTransactionsFragment extends Fragment implements TextWatcherInte
 
         SharedPreferencesUtil sharedPreferencesUtil = new SharedPreferencesUtil(Objects.requireNonNull(getActivity()));
 
-        firebaseManager = new FirebaseManager();
+        firebaseManager = ((MainActivity) getActivity()).getFirebaseManager();
         ((MainActivity) Objects.requireNonNull(getActivity())).loadingView.showLoading();
-        firebaseManager.readAllDataFromCollection(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    usersList = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                        Users user = document.toObject(Users.class);
-                        user.setIdUser(document.getId());
-                        usersList.add(user);
-                    }
-                    loadSpinners();
-                } else {
-                    Toast.makeText(getActivity(), getString(R.string.error_get_data), Toast.LENGTH_SHORT).show();
-                    Log.w("TAG", "Error getting users.", task.getException());
+        firebaseManager.readAllDataFromCollection(task -> {
+            ((MainActivity) getActivity()).loadingView.hideLoading();
+            if (task.isSuccessful()) {
+                usersList = new ArrayList<>();
+                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                    Users user = document.toObject(Users.class);
+                    user.setIdUser(document.getId());
+                    usersList.add(user);
                 }
+                loadSpinners();
+            } else {
+                Toast.makeText(getActivity(), getString(R.string.error_get_data), Toast.LENGTH_SHORT).show();
+                Log.e("TAG", "Error getting users. ", task.getException());
             }
-        }, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
+        }, e -> {
+            ((MainActivity) getActivity()).loadingView.hideLoading();
+            DialogGeneral
+                    .newInstance()
+                    .setIcon(R.drawable.ic_error)
+                    .setTitle(getString(R.string.error))
+                    .setSubtitle(getString(R.string.error_set_data))
+                    .isAccept(null)
+                    .show(getFragmentManager(), "");
+            Log.e("TAG", "Error getting users. ", e.getCause());
         }, ConstantList.USERS_COLLECTION, ConstantList.ID_TEAM_USER, sharedPreferencesUtil.readStringPreference(ConstantList.ID_TEAM_PREFERENCES));
 
         twValue = new OwnTextWatcher(getContext(), et_value, this, tv_error_et_value);
         twValue.setValidaObligatorio(true, getResources().getString(R.string.error_edittext_requiered));
         et_value.addTextChangedListener(twValue);
-        tipdocAdapter = new SpinnerAdapter(getContext(), R.layout.layout_spinner, new ArrayList<String>(), tv_error_sp_persons, getResources().getString(R.string.error_spinner_requiered));
+        tipdocAdapter = new SpinnerAdapter(getContext(), R.layout.layout_spinner, new ArrayList<>(), tv_error_sp_persons, getResources().getString(R.string.error_spinner_requiered));
         sp_persons.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -149,6 +144,7 @@ public class AddTransactionsFragment extends Fragment implements TextWatcherInte
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
+                Toast.makeText(getActivity(), "Debes seleccionar ", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -176,18 +172,24 @@ public class AddTransactionsFragment extends Fragment implements TextWatcherInte
             Util.hideSoftKeyboard(Objects.requireNonNull(getActivity()));
             Map<String, Object> newObject = new HashMap<>();
             newObject.put(ConstantList.ID_USER_TRANSACTION, usersList.get(sp_persons.getSelectedItemPosition() - 1).getIdUser());
+            newObject.put(ConstantList.NAME_USER_TRANSACTION, usersList.get(sp_persons.getSelectedItemPosition() - 1).getNAME_USER());
+            newObject.put(ConstantList.ID_TEAM_TRANSACTION, usersList.get(sp_persons.getSelectedItemPosition() - 1).getID_TEAM_USER());
             newObject.put(ConstantList.VALUE_TRANSACTION, Objects.requireNonNull(et_value.getText()).toString());
             newObject.put(ConstantList.COMMENT_TRANSACTION, Objects.requireNonNull(et_comment.getText()).toString());
-            firebaseManager.addElement(newObject, new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    Toast.makeText(getActivity(), documentReference.getId(), Toast.LENGTH_SHORT).show();
-                }
-            }, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
-                }
+            newObject.put(ConstantList.PAID_TRANSACTION, false);
+            newObject.put(ConstantList.CREATION_DATE_TRANSACTION, FieldValue.serverTimestamp());
+            firebaseManager.addElement(newObject, documentReference -> {
+                Toast.makeText(getActivity(), getString(R.string.add_transaction_success), Toast.LENGTH_SHORT).show();
+                getActivity().onBackPressed();
+            }, e -> {
+                DialogGeneral
+                        .newInstance()
+                        .setIcon(R.drawable.ic_error)
+                        .setTitle(getString(R.string.error))
+                        .setSubtitle(getString(R.string.error_set_data))
+                        .isAccept(null)
+                        .show(getFragmentManager(), "");
+                Log.e("TAG", "Error adding transaction. ", e.getCause());
             }, ConstantList.TRANSACTION_COLLECTION);
         }
     }

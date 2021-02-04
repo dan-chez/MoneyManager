@@ -74,4 +74,7 @@ public class FirebaseManager {
                 .addOnFailureListener(onFailureListener);
     }
 
+    public FirebaseFirestore getDb() {
+        return db;
+    }
 }

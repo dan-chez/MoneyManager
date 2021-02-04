@@ -1,59 +1,52 @@
 package co.danchez.moneymanager.Connectivity.Models;
 
-import com.google.gson.annotations.SerializedName;
-
 public class Users {
 
-    @SerializedName("EMAIL_USER")
-    private String email;
-    @SerializedName("ID_TEAM_USER")
-    private String idTeam;
-    @SerializedName("NAME_USER")
-    private String name;
-    @SerializedName("PHOTO_USER")
-    private String photo;
-    @SerializedName("UID_USER")
-    private String uid;
+    private String EMAIL_USER;
+    private String ID_TEAM_USER;
+    private String NAME_USER;
+    private String PHOTO_USER;
+    private String UID_USER;
     private String idUser;
 
-    public String getEmail() {
-        return email;
+    public String getEMAIL_USER() {
+        return EMAIL_USER;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEMAIL_USER(String EMAIL_USER) {
+        this.EMAIL_USER = EMAIL_USER;
     }
 
-    public String getIdTeam() {
-        return idTeam;
+    public String getID_TEAM_USER() {
+        return ID_TEAM_USER;
     }
 
-    public void setIdTeam(String idTeam) {
-        this.idTeam = idTeam;
+    public void setID_TEAM_USER(String ID_TEAM_USER) {
+        this.ID_TEAM_USER = ID_TEAM_USER;
     }
 
-    public String getName() {
-        return name;
+    public String getNAME_USER() {
+        return NAME_USER;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNAME_USER(String NAME_USER) {
+        this.NAME_USER = NAME_USER;
     }
 
-    public String getPhoto() {
-        return photo;
+    public String getPHOTO_USER() {
+        return PHOTO_USER;
     }
 
-    public void setPhoto(String photo) {
-        this.photo = photo;
+    public void setPHOTO_USER(String PHOTO_USER) {
+        this.PHOTO_USER = PHOTO_USER;
     }
 
-    public String getUid() {
-        return uid;
+    public String getUID_USER() {
+        return UID_USER;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setUID_USER(String UID_USER) {
+        this.UID_USER = UID_USER;
     }
 
     public String getIdUser() {
@@ -63,4 +56,5 @@ public class Users {
     public void setIdUser(String idUser) {
         this.idUser = idUser;
     }
+
 }

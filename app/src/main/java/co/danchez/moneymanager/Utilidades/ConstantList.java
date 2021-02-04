@@ -22,8 +22,12 @@ public class ConstantList {
      * Firebase fields name's
      * */
     public static final String ID_USER_TRANSACTION = "ID_USER_TRANSACTION";
+    public static final String NAME_USER_TRANSACTION = "NAME_USER_TRANSACTION";
     public static final String VALUE_TRANSACTION = "VALUE_TRANSACTION";
     public static final String COMMENT_TRANSACTION = "COMMENT_TRANSACTION";
+    public static final String CREATION_DATE_TRANSACTION = "CREATION_DATE_TRANSACTION";
+    public static final String ID_TEAM_TRANSACTION = "ID_TEAM_TRANSACTION";
+    public static final String PAID_TRANSACTION = "PAID_TRANSACTION";
 
     public static final String TEAM_NAME = "TEAM_NAME";
     public static final String NAME_CREATOR_TEAM = "NAME_CREATOR_TEAM";
@@ -37,6 +41,7 @@ public class ConstantList {
     public static final String EMAIL_USER = "EMAIL_USER";
     public static final String PHOTO_USER = "PHOTO_USER";
     public static final String UID_USER = "UID_USER";
+    public static final String REGISTER_TIME_USER = "REGISTER_TIME_USER";
 
     /**
      * Sharedpreferences name's
